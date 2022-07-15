@@ -1,0 +1,84 @@
+//Node js Backend code to store multiple image 
+.....................
+in Router Page
+'''''''''''''''''''''
+var express = require('express');
+var router = express.Router();
+const multer  = require('multer')
+const picPath = require("path");
+const shortid = require("shortid");
+.....................
+//folder define in router page
+'''''''''''''''''''''
+const storageMulti = multer.diskStorage({
+    destination: (req, file, cb) => {
+        // cb(null, DIR);
+        cb(null, picPath.join(picPath.dirname(__dirname), "vendorImages"));
+    },
+    filename: (req, file, cb) => {
+        const fileName = file.originalname.toLowerCase().split(' ').join('-');
+        cb(null, "vendor" + '-' + fileName)
+    }
+});
+//filter define
+var uploadMulti = multer({
+    storage: storageMulti,
+    fileFilter: (req, file, cb) => {
+        if (file.mimetype == "image/png" || file.mimetype == "image/jpg" || file.mimetype == "image/jpeg") {
+            cb(null, true);
+        } else {
+            cb(null, false);
+            return cb(new Error('File type not accepted (.png, .jpg, .jpeg)'));
+        }
+    }
+});
+
+.....................
+// in Router page 
+'''''''''''''''''''''
+
+router.post("/multiimage",uploadMulti.array('multiFile', 10),multiimage)
+
+.....................
+// Controller Page
+'''''''''''''''''''''
+
+exports.multiimage=(req,res)=>{
+
+  const reqFiles = [];
+
+    const url = req.protocol + '://' + req.get('host')
+    console.log(url)
+
+    for (var i = 0; i < req.files.length; i++) {
+      console.log(req.files[i].filename)
+        reqFiles.push(url + '/vendorImages/' + req.files[i].filename)
+    }
+  
+    const imageModalData = VendorImageModel({
+        vendorImage:reqFiles
+    })
+
+    imageModalData.save((err,data)=>{
+        if(err){
+            return res.status(201).json({err});
+        }
+        if(data){
+            return res.status(200).json({msg:"Image Upload successfull"});
+        }
+    });
+ }
+ 
+ 
+ 
+ //Most Importan Make Uploads folder as accessible
+ ................
+ in App.js File
+'''''''''''''''''
+ 
+const directory = path.join(__dirname, 'vendorImages');
+app.use('/vendorImages', express.static(directory));
+ 
+ 
+ 
+ 
