@@ -1,0 +1,30 @@
+const [chooseFile,setChooseFile] = useState([]); 
+
+.........................
+On Button click to upload
+'''''''''''''''''''''''''
+ const uploadImages=async()=>{ 
+    const formData = new FormData();
+    // formData.append("multiFile",chooseFile[0]); 
+    Object.values(chooseFile).forEach(file=>{
+      console.log(file)
+      formData.append("multiFile", file);
+    }); 
+    const res = await axios.post("http://localhost:5000/api/multiimage",formData, {headers: {
+          'Content-Type': 'multipart/form-data'
+        }});
+}
+
+
+'''''''''''''''''''''
+On Return Div form
+'''''''''''''''''''''
+
+<div className="col-xs-4">
+        <input type="file" 
+               className="form-control"
+               placeholder=".col-xs-5" 
+               multiple 
+               name="multiFile" 
+          onChange={(e)=>setChooseFile(e.target.files)}/>
+      </div>
